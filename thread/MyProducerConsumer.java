@@ -65,11 +65,12 @@ class Producer implements Runnable {
 		int i=numberOfMessages;
 		while( i > 0  ) {
 			String m = String.format("Producer %d produces #%d", id, i);
-			if( q.offer(m) ) {
+			// if( q.offer(m) ) { // non-blocking version
+			try {
+				q.put(m);	// blocking version
 				System.out.println(m);
 				i--;
-			}
-			try {
+			// }  // non-blocking version
 				Thread.sleep(r.nextInt(2000));
 			} catch( InterruptedException e ) {
 			}
@@ -97,7 +98,8 @@ class Consumer implements Runnable {
 		Random r = new Random();
 		while( true ) {
 			try {
-				String m = q.poll();
+				// String m = q.poll(); // non-blocking version
+				String m = q.take(100); // blocking version
 				if( m != null ) {
 					System.out.println(String.format("Consumer %d consumers: %s", id, m));
 				} else {
